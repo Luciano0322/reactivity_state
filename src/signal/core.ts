@@ -7,7 +7,7 @@ function subscribe(running: Computation, subscriptions: Set<Computation>): void 
   running.dependencies.add(subscriptions);
 }
 
-export function createSignal<T>(value: T): {
+export function createMySignal<T>(value: T): {
   read: () => T;
   write: (v: T) => void;
 } {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Computation } from './types';
 import { context } from './core';
 
-export function useSignal<T>(
+export function useMySignal<T>(
   signal: { read: () => T; write: (v: T) => void }
 ): [T, (v: T) => void] {
   const [value, setValue] = useState<T>(signal.read());

@@ -1,10 +1,10 @@
 import './App.css';
-import { createSignal, useSignal } from './signal';
+import { createMySignal, useMySignal } from './signal';
 
-const countSignal = createSignal(0);
+const countSignal = createMySignal(0);
 
 const App = () => {
-  const [count, setCount] = useSignal(countSignal);
+  const [count, setCount] = useMySignal(countSignal);
   const increment = () => {
     setCount(count + 1);
   };

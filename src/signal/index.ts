@@ -1,4 +1,4 @@
-import { createSignal } from "./core";
-import { useSignal } from "./useSignal";
+import { createMySignal } from "./core";
+import { useMySignal } from "./useSignal";
 
-export { createSignal, useSignal };
+export { createMySignal, useMySignal };
