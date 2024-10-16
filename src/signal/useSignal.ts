@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
 import { Computation } from './types';
 import { context } from './core';
 
@@ -47,4 +47,32 @@ export function useMySignal<T>(
   };
 
   return [value, setSignal];
+}
+// 改使用useSyncExternalStore處理
+export function useMySignal2<T>(
+  signal: { read: () => T; write: (v: T) => void }
+) {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      // 自定義的 Computation 中的 execute 方法應該觸發這個回調
+      const subscription = {
+        execute: onStoreChange,
+        dependencies: new Set<Set<Computation>>(),
+      };
+
+      // 將該訂閱加入到 context 中
+      context.push(subscription);
+
+      // 返回取消訂閱的方法
+      return () => {
+        // 移除訂閱
+        context.splice(context.indexOf(subscription), 1);
+      };
+    },
+    // 返回當前的 signal 值
+    () => signal.read(),
+
+    // 伺服器端渲染快照：如果有伺服器渲染需求，可使用此方法來獲取伺服器端的值
+    () => signal.read()
+  )
 }
