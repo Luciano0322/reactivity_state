@@ -14,6 +14,7 @@ export function cleanupDependencies(computation: Computation) {
   computation.dependencies.clear();
 }
 
+// 回傳加了subscribe, unsubscribe 為了方便與 useSyncExternalStore hook 整合
 export function createMySignal<T>(value: T): {
   read: () => T;
   write: (v: T) => void;
@@ -49,5 +50,54 @@ export function createMySignal<T>(value: T): {
     write,
     subscribe: subscribeToSignal,
     unsubscribe: unsubscribeFromSignal,
+  };
+}
+
+// for 其他框架或是純html, js, css 環境下應用
+export function createEffect(fn: () => void) {
+  const execute = () => {
+    cleanupDependencies(running);
+    context.push(running);
+    try {
+      fn();  // 執行 effect 函數
+    } finally {
+      context.pop();  // 確保 context 恢復
+    }
+  };
+
+  const running: Computation = {
+    execute,
+    dependencies: new Set()
+  };
+
+  execute();  // 初次運行 effect
+}
+
+// for 其他框架或是純html, js, css 環境下應用
+export function createMemo<T>(fn: () => T): () => T {
+  let cachedValue: T;
+  let firstRun = true;
+
+  const compute = () => {
+    cleanupDependencies(running);
+    context.push(running);
+    try {
+      cachedValue = fn();  // 計算結果
+    } finally {
+      context.pop();  // 確保 context 恢復
+    }
+  };
+
+  const running: Computation = {
+    execute: compute,
+    dependencies: new Set()
+  };
+
+  return () => {
+    if (firstRun) {
+      compute();  // 初次運行時計算值
+      firstRun = false;
+    }
+    return cachedValue;  // 返回緩存的結果
   };
 }

@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { createMySignal, useMySignal } from "../signal";
 import { useMySignal2, useMySignal3 } from "../signal/useSignal";
+import { createEffect } from "../signal/core";
 
 const countSignal = createMySignal(0);
 // 一定要處理綁定的過程，你的signal才會被正確執行
@@ -11,8 +12,9 @@ const DisplayMySignal: FC = () => {
   // const increment = () => {
   //   setCount(count + 1);
   // };
+  // createEffect(() => console.log('countSignal: ', countSignal.read()))
   const increment = () => {
-    countSignal.write(count + 1);
+    countSignal.write(countSignal.read() + 1);
   }
   return (
     <>
