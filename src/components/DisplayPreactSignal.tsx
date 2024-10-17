@@ -1,8 +1,9 @@
-import { signal, useSignal } from "@preact/signals-react";
+import { computed, signal, useSignal } from "@preact/signals-react";
 import { useSignals } from "@preact/signals-react/runtime";
 import { FC } from "react";
 
 const countSignal = signal(0);
+const doubleCount = computed(() => countSignal.value * 2);
 
 const DisplayPreactSignal: FC = () => {
   useSignals(); // 等同於useMySignal綁在useEffect的處理, 
@@ -12,7 +13,7 @@ const DisplayPreactSignal: FC = () => {
     <>
       <h3>Preact signal</h3>
       {/* <p>{count.value}</p> */}
-      <p>{countSignal.value}</p>
+      <p>x2: {doubleCount}</p>
       <div>
         {/* <button onClick={() => count.value++}>Count: {count.value}</button> */}
         <button onClick={() => countSignal.value++}>Count: {countSignal.value}</button>
