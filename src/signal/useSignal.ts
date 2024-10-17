@@ -1,7 +1,8 @@
 import { useState, useEffect, useSyncExternalStore } from 'react';
-import { Computation } from './types';
-import { context } from './core';
+import { Computation, MySignal } from './types';
+import { cleanupDependencies, context, subscribe } from './core';
 
+// 傳統與state綁定，參考jotai useAtom作法
 export function useMySignal<T>(
   signal: { read: () => T; write: (v: T) => void }
 ): [T, (v: T) => void] {
@@ -75,4 +76,23 @@ export function useMySignal2<T>(
     // 伺服器端渲染快照：如果有伺服器渲染需求，可使用此方法來獲取伺服器端的值
     () => signal.read()
   )
+}
+
+// 更接近細粒度設計的signal
+export function useMySignal3(signal: MySignal) {
+  // 使用 useSyncExternalStore 來同步外部信號變化
+  const value = useSyncExternalStore(
+    (onStoreChange) => {
+      // 這裡會自動訂閱 signal
+      const computation: Computation = {
+        execute: onStoreChange,        // 當信號變化時觸發
+        dependencies: new Set()        // 用於追蹤依賴
+      };
+      signal.subscribe(computation);  // 訂閱信號
+      return () => signal.unsubscribe(computation);
+    },
+    () => signal.read(),
+  );
+
+  return value; // 返回信號的最新值
 }

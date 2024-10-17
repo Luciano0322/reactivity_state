@@ -2,14 +2,23 @@ import { Computation } from "./types";
 
 export const context: Computation[] = [];
 
-function subscribe(running: Computation, subscriptions: Set<Computation>): void {
+export function subscribe(running: Computation, subscriptions: Set<Computation>): void {
   subscriptions.add(running);
   running.dependencies.add(subscriptions);
+}
+
+export function cleanupDependencies(computation: Computation) {
+  computation.dependencies.forEach((subscription) => {
+    subscription.delete(computation);
+  });
+  computation.dependencies.clear();
 }
 
 export function createMySignal<T>(value: T): {
   read: () => T;
   write: (v: T) => void;
+  subscribe: (computation: Computation) => void;
+  unsubscribe: (computation: Computation) => void;
 } {
   const subscriptions = new Set<Computation>();
 
@@ -26,5 +35,19 @@ export function createMySignal<T>(value: T): {
       sub.execute();
     }
   };
-  return { read, write };
+
+  const subscribeToSignal = (computation: Computation) => {
+    subscriptions.add(computation);  // 添加訂閱
+  };
+
+  const unsubscribeFromSignal = (computation: Computation) => {
+    subscriptions.delete(computation);  // 移除訂閱
+  };
+
+  return { 
+    read, 
+    write,
+    subscribe: subscribeToSignal,
+    unsubscribe: unsubscribeFromSignal,
+  };
 }
