@@ -78,7 +78,7 @@ export function useMySignal2<T>(
   )
 }
 
-// 更接近細粒度設計的signal
+// 更接近solid js設計的signal
 export function useMySignal3(signal: MySignal) {
   // 使用 useSyncExternalStore 來同步外部信號變化
   const value = useSyncExternalStore(
@@ -92,6 +92,8 @@ export function useMySignal3(signal: MySignal) {
       return () => signal.unsubscribe(computation);
     },
     () => signal.read(),
+    // 伺服器端渲染快照：如果有伺服器渲染需求，可使用此方法來獲取伺服器端的值
+    () => signal.read()
   );
 
   return value; // 返回信號的最新值
