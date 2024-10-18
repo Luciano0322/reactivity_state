@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-import { createMySignal } from "../signal";
-import { useMySignal3 } from "../signal/useSignal";
+import { createMySignal, useMySignal } from "../signal";
 import { MySignal } from "../signal/types";
 
 // 這是使用state props & 改用 signal 最明顯的差異
@@ -21,7 +20,7 @@ interface TextInputProps {
 const TextInput: React.FC = () => {
   // const [data, setStore] = store;
   const value = 'name';
-  const data = useMySignal3(storeSignal[value]);
+  const data = useMySignal(storeSignal[value]);
 
   return (
     <fieldset className="field">
@@ -44,7 +43,7 @@ interface OrderBtnsProps {
 const OrderBtns: React.FC = () => {
   // const [data, setStore] = store;
   const value = 'count';
-  const data = useMySignal3(storeSignal[value]);
+  const data = useMySignal(storeSignal[value]);
   return (
     <div
       style={{
@@ -91,10 +90,10 @@ interface DisplayProps {
 const Display: React.FC<DisplayProps> = ({ value }) => {
   // const [data, setStore] = store;
   const signal = storeSignal[value];
-  // const data = useMySignal3(storeSignal[value]);
+  // const data = useMySignal(storeSignal[value]);
   const data = typeof signal.read() === 'number'
-    ? useMySignal3(signal as MySignal<number>)
-    : useMySignal3(signal as MySignal<string>);
+    ? useMySignal(signal as MySignal<number>)
+    : useMySignal(signal as MySignal<string>);
 
   return (
     <div className="value">

@@ -15,14 +15,33 @@ export function cleanupDependencies(computation: Computation) {
 }
 
 // 回傳加了subscribe, unsubscribe 為了方便與 useSyncExternalStore hook 整合
+// 判斷是否為物件類型
+function isObject(value: any): value is object {
+  return typeof value === 'object' && value !== null;
+}
+
+export function createMySignal<T extends object>(
+  initialValue: T
+): { [K in keyof T]: MySignal<T[K]> };
+export function createMySignal<T>(
+  initialValue: T
+): MySignal<T>;
+
+export function createMySignal<T>(initialValue: T): any {
+  if (isObject(initialValue)) {
+    return createSignalObject(initialValue);
+  } else {
+    return createPrimitiveSignal(initialValue);
+  }
+}
 
 // 通用型信號創建函數，強制要求物件型別
-export function createMySignal<T extends object>(initialValue: T): { [K in keyof T]: MySignal<T[K]> } {
+export function createSignalObject<T extends object>(initialValue: T): { [K in keyof T]: MySignal<T[K]> } {
   const signals = {} as { [K in keyof T]: MySignal<T[K]> };
 
   // 使用 Object.keys 來處理屬性
   for (const key of Object.keys(initialValue) as (keyof T)[]) {
-    signals[key] = createPrimitiveSignal(initialValue[key]);
+    signals[key] = createMySignal(initialValue[key]);
   }
 
   return signals;

@@ -3,7 +3,7 @@ import { Computation, MySignal } from './types';
 import { cleanupDependencies, context, subscribe } from './core';
 
 // 傳統與state綁定，參考jotai useAtom作法
-export function useMySignal<T>(
+export function useMySignalv1<T>(
   signal: { read: () => T; write: (v: T) => void }
 ): [T, (v: T) => void] {
   const [value, setValue] = useState<T>(signal.read());
@@ -50,7 +50,7 @@ export function useMySignal<T>(
   return [value, setSignal];
 }
 // 改使用useSyncExternalStore處理
-export function useMySignal2<T>(
+export function useMySignalv2<T>(
   signal: { read: () => T; write: (v: T) => void }
 ) {
   return useSyncExternalStore(
@@ -79,7 +79,7 @@ export function useMySignal2<T>(
 }
 
 // 更接近solid js設計的signal
-export function useMySignal3<T>(signal: MySignal<T>) {
+export function useMySignal<T>(signal: MySignal<T>) {
   // 使用 useSyncExternalStore 來同步外部信號變化
   const value = useSyncExternalStore(
     (onStoreChange) => {
