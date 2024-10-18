@@ -98,3 +98,31 @@ export function useMySignal<T>(signal: MySignal<T>) {
 
   return value; // 返回信號的最新值
 }
+
+// 新增 Effect in React 環境, 其實就是將原本的 createEffect 改用 useEffect 額外封包
+// dependencies 必須符合 useEffect 的規範
+export function useMySignalEffect(fn: () => void, dependencies: any[]) {
+  useEffect(() => {
+    const execute = () => {
+      cleanupDependencies(running);
+      context.push(running);
+      try {
+        fn();
+      } finally {
+        context.pop();
+      }
+    };
+
+    const running: Computation = {
+      execute,
+      dependencies: new Set(),
+    };
+
+    execute();
+
+    // Cleanup when dependencies change or component unmounts
+    return () => {
+      cleanupDependencies(running);
+    };
+  }, dependencies);
+}

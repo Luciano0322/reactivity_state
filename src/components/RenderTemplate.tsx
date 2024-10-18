@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { createMySignal, useMySignal } from "../signal";
+import { createMySignal, useMySignal, useMySignalEffect } from "../signal";
 import { MySignal } from "../signal/types";
 
 // 這是使用state props & 改用 signal 最明顯的差異
@@ -21,6 +21,7 @@ const TextInput: React.FC = () => {
   // const [data, setStore] = store;
   const value = 'name';
   const data = useMySignal(storeSignal[value]);
+  useMySignalEffect(() => console.log('txtInput data: ', data), [data])
 
   return (
     <fieldset className="field">
