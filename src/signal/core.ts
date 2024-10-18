@@ -27,6 +27,7 @@ export function createMySignal<T>(
   initialValue: T
 ): MySignal<T>;
 
+// 通用型信號創建函數，判斷是否為物件型別
 export function createMySignal<T>(initialValue: T): any {
   if (isObject(initialValue)) {
     return createSignalObject(initialValue);
@@ -35,7 +36,7 @@ export function createMySignal<T>(initialValue: T): any {
   }
 }
 
-// 通用型信號創建函數，強制要求物件型別
+// 解決物件型別深淺拷貝的問題, 用於處理非物件的單一值
 export function createSignalObject<T extends object>(initialValue: T): { [K in keyof T]: MySignal<T[K]> } {
   const signals = {} as { [K in keyof T]: MySignal<T[K]> };
 
@@ -47,7 +48,6 @@ export function createSignalObject<T extends object>(initialValue: T): { [K in k
   return signals;
 }
 
-// 解決物件型別深淺拷貝的問題, 用於處理非物件的單一值
 export function createPrimitiveSignal<T>(value: T): MySignal<T> {
   const subscriptions = new Set<Computation>();
 
