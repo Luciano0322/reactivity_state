@@ -1,4 +1,4 @@
-import { Computation } from "./types";
+import { Computation, MySignal } from "./types";
 
 export const context: Computation[] = [];
 
@@ -15,12 +15,21 @@ export function cleanupDependencies(computation: Computation) {
 }
 
 // 回傳加了subscribe, unsubscribe 為了方便與 useSyncExternalStore hook 整合
-export function createMySignal<T>(value: T): {
-  read: () => T;
-  write: (v: T) => void;
-  subscribe: (computation: Computation) => void;
-  unsubscribe: (computation: Computation) => void;
-} {
+
+// 通用型信號創建函數，強制要求物件型別
+export function createMySignal<T extends object>(initialValue: T): { [K in keyof T]: MySignal<T[K]> } {
+  const signals = {} as { [K in keyof T]: MySignal<T[K]> };
+
+  // 使用 Object.keys 來處理屬性
+  for (const key of Object.keys(initialValue) as (keyof T)[]) {
+    signals[key] = createPrimitiveSignal(initialValue[key]);
+  }
+
+  return signals;
+}
+
+// 解決物件型別深淺拷貝的問題, 用於處理非物件的單一值
+export function createPrimitiveSignal<T>(value: T): MySignal<T> {
   const subscriptions = new Set<Computation>();
 
   const read = () => {
@@ -31,7 +40,6 @@ export function createMySignal<T>(value: T): {
 
   const write = (nextValue: T) => {
     value = nextValue;
-
     for (const sub of [...subscriptions]) {
       sub.execute();
     }

@@ -79,7 +79,7 @@ export function useMySignal2<T>(
 }
 
 // 更接近solid js設計的signal
-export function useMySignal3(signal: MySignal) {
+export function useMySignal3<T>(signal: MySignal<T>) {
   // 使用 useSyncExternalStore 來同步外部信號變化
   const value = useSyncExternalStore(
     (onStoreChange) => {

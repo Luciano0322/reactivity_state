@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createMySignal } from "../signal";
 import { useMySignal3 } from "../signal/useSignal";
+import { MySignal } from "../signal/types";
 
 // 這是使用state props & 改用 signal 最明顯的差異
 // 這樣的使用可以降低 props useMemo & useCallback 的封包使用
@@ -17,16 +18,18 @@ interface TextInputProps {
 }
 
 // const TextInput: React.FC<TextInputProps> = ({ value, store }) => {
-const TextInput: React.FC<TextInputProps> = ({ value }) => {
+const TextInput: React.FC = () => {
   // const [data, setStore] = store;
-  const data = useMySignal3(storeSignal)
+  const value = 'name';
+  const data = useMySignal3(storeSignal[value]);
+
   return (
     <fieldset className="field">
       <legend>{value}: </legend>
       <input
-        value={data[value]}
+        value={data}
         // onChange={(e) => setStore({ ...data, [value]: e.target.value })}
-        onChange={(e) => storeSignal.write({ ...data, [value]: e.target.value })}
+        onChange={(e) => storeSignal[value].write(e.target.value)}
       />
     </fieldset>
   );
@@ -38,9 +41,10 @@ interface OrderBtnsProps {
 }
 
 // const OrderBtns: React.FC<OrderBtnsProps> = ({ value, store }) => {
-const OrderBtns: React.FC<OrderBtnsProps> = ({ value }) => {
+const OrderBtns: React.FC = () => {
   // const [data, setStore] = store;
-  const data = useMySignal3(storeSignal);
+  const value = 'count';
+  const data = useMySignal3(storeSignal[value]);
   return (
     <div
       style={{
@@ -51,13 +55,13 @@ const OrderBtns: React.FC<OrderBtnsProps> = ({ value }) => {
     >
       <button
         // onClick={() => setStore({ ...data, [value]: (data[value] as number) - 1 })}
-        onClick={() => storeSignal.write({ ...data, [value]: (data[value] as number) - 1 })}
+        onClick={() => storeSignal[value].write(data - 1)}
       >
         -
       </button>
       <button
         // onClick={() => setStore({ ...data, [value]: (data[value] as number) + 1 })}
-        onClick={() => storeSignal.write({ ...data, [value]: (data[value] as number) + 1 })}
+        onClick={() => storeSignal[value].write(data + 1)}
       >
         +
       </button>
@@ -72,8 +76,8 @@ const InputContainer: React.FC = () => {
       <h5>輸入面板</h5>
       {/* <OrderBtns value="count" store={store}/>
       <TextInput value="name" store={store}/> */}
-      <OrderBtns value="count" />
-      <TextInput value="name" />
+      <OrderBtns />
+      <TextInput />
     </div>
   );
 };
@@ -86,10 +90,15 @@ interface DisplayProps {
 // const Display: React.FC<DisplayProps> = ({ value, store }) => {
 const Display: React.FC<DisplayProps> = ({ value }) => {
   // const [data, setStore] = store;
-  const data = useMySignal3(storeSignal);
+  const signal = storeSignal[value];
+  // const data = useMySignal3(storeSignal[value]);
+  const data = typeof signal.read() === 'number'
+    ? useMySignal3(signal as MySignal<number>)
+    : useMySignal3(signal as MySignal<string>);
+
   return (
     <div className="value">
-      {value}: {data[value]}
+      {value}: {data}
     </div>
   );
 };

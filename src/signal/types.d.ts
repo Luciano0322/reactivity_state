@@ -3,7 +3,7 @@ export interface Computation {
   execute: () => void;
 }
 
-export interface MySignal {
+export interface MySignal<T> {
   read: () => T;
   write: (v: T) => void;
   subscribe: (computation: Computation) => void;
