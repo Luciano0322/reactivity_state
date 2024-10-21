@@ -1,6 +1,37 @@
 import { Computation, MySignal } from "./types";
+import { unstable_batchedUpdates } from 'react-dom';
 
 export const context: Computation[] = [];
+
+// 批量更新相關的全域變數
+let batching = false;
+const pendingComputations = new Set<Computation>();
+
+// 開始批量更新
+export function startBatch() {
+  batching = true;
+}
+
+// 結束批量更新
+export function endBatch() {
+  batching = false;
+  const computations = Array.from(pendingComputations);
+  pendingComputations.clear();
+  // 這裡是以考量符合 React 環境下使用的，如果是其他框架這邊要去查各自的批量更新方法
+  unstable_batchedUpdates(() => {
+    computations.forEach((comp) => comp.execute());
+  });
+}
+
+// 運行批量更新
+export function runInBatch(fn: () => void) {
+  startBatch();
+  try {
+    fn();
+  } finally {
+    endBatch();
+  }
+}
 
 export function subscribe(running: Computation, subscriptions: Set<Computation>): void {
   subscriptions.add(running);
@@ -48,6 +79,15 @@ export function createSignalObject<T extends object>(initialValue: T): { [K in k
   return signals;
 }
 
+// 調整以符合 react 的 batch update
+function scheduleUpdate(computation: Computation) {
+  if (batching) {
+    pendingComputations.add(computation);
+  } else {
+    computation.execute();
+  }
+}
+
 export function createPrimitiveSignal<T>(value: T): MySignal<T> {
   const subscriptions = new Set<Computation>();
 
@@ -60,7 +100,8 @@ export function createPrimitiveSignal<T>(value: T): MySignal<T> {
   const write = (nextValue: T) => {
     value = nextValue;
     for (const sub of [...subscriptions]) {
-      sub.execute();
+      // sub.execute(); 
+      scheduleUpdate(sub);
     }
   };
 
