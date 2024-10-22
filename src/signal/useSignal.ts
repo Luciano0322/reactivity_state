@@ -1,6 +1,6 @@
 import { useState, useEffect, useSyncExternalStore } from 'react';
 import { Computation, MySignal } from './types';
-import { cleanupDependencies, context, subscribe } from './core';
+import { cleanupDependencies, context, runWithContext, subscribe } from './core';
 
 // 傳統與state綁定，參考jotai useAtom作法
 export function useMySignalv1<T>(
@@ -121,6 +121,24 @@ export function useMySignalEffect(fn: () => void, dependencies: any[]) {
     execute();
 
     // Cleanup when dependencies change or component unmounts
+    return () => {
+      cleanupDependencies(running);
+    };
+  }, dependencies);
+}
+
+export function useMySignalAsyncEffect(effect: () => Promise<void>, dependencies: any[]) {
+  useEffect(() => {
+    const running: Computation = {
+      execute: () => {
+        cleanupDependencies(running);
+        runWithContext(running, () => {});
+      },
+      dependencies: new Set(),
+    };
+
+    effect();
+
     return () => {
       cleanupDependencies(running);
     };

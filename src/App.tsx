@@ -4,6 +4,7 @@ import DisplayMySignal from './components/DisplayMySignal';
 import DisplayProxyVersion from './components/DisplayProxyVersing';
 import RenderTemplate from './components/RenderTemplate';
 import RenderForPreact from './components/RenderForPreact';
+import DisplayAsyncSignal from './components/DIsplayAsyncSignal';
 
 const App = () => {
   return (
@@ -13,7 +14,8 @@ const App = () => {
       {/* <RenderForPreact /> */}
       {/* <DisplayMySignal />
       <DisplayProxyVersion /> */}
-      <RenderTemplate/>
+      {/* <RenderTemplate/> */}
+      <DisplayAsyncSignal />
     </div>
   );
 };

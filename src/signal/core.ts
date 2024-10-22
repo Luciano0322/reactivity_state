@@ -121,49 +121,64 @@ export function createPrimitiveSignal<T>(value: T): MySignal<T> {
   };
 }
 
-// for 其他框架或是純html, js, css 環境下應用
-export function createEffect(fn: () => void) {
-  const execute = () => {
-    cleanupDependencies(running);
-    context.push(running);
-    try {
-      fn();  // 執行 effect 函數
-    } finally {
-      context.pop();  // 確保 context 恢復
-    }
-  };
-
-  const running: Computation = {
-    execute,
-    dependencies: new Set()
-  };
-
-  execute();  // 初次運行 effect
+// 思考以符合 async 處理的情境，在異步狀態下也能保持正確的傳遞
+export function runWithContext<T>(computation: Computation, fn: () => T): T {
+  context.push(computation);
+  try {
+    return fn(); // 執行 effect 函數
+  } finally {
+    context.pop(); // 確保 context 恢復
+  }
 }
 
-// for 其他框架或是純html, js, css 環境下應用
+// 優化 context 的傳遞順序
+/**
+ * function withContext 
+ * 使用範例：在 createEffect 中使用 async
+ * createEffect(() => {
+ *    withContext(async () => {
+ *      const data = await fetchData();
+ *      dataSignal.write(data);
+ *    });
+ * });
+ */
+
+export function withContext<T>(fn: () => Promise<T>): Promise<T> {
+  const running = context[context.length - 1];
+  return fn().then((result) => {
+    return runWithContext(running, () => result);
+  });
+}
+
+// for 其他框架或是純html, js, css 環境下應用, 調整以符合 async 情境的處理
+export function createEffect(fn: () => void) {
+  const running: Computation = {
+    execute: () => {
+      cleanupDependencies(running);
+      runWithContext(running, fn);
+    },
+    dependencies: new Set(),
+  };
+
+  running.execute();  // 初次運行 effect
+}
+
+// for 其他框架或是純html, js, css 環境下應用, 調整以符合 async 情境的處理
 export function createMemo<T>(fn: () => T): () => T {
   let cachedValue: T;
   let firstRun = true;
 
-  const compute = () => {
-    cleanupDependencies(running);
-    context.push(running);
-    try {
-      cachedValue = fn();  // 計算結果
-    } finally {
-      context.pop();  // 確保 context 恢復
-    }
-  };
-
   const running: Computation = {
-    execute: compute,
-    dependencies: new Set()
+    execute: () => {
+      cleanupDependencies(running);
+      cachedValue = runWithContext(running, fn);
+    },
+    dependencies: new Set(),
   };
 
   return () => {
     if (firstRun) {
-      compute();  // 初次運行時計算值
+      running.execute();  // 初次運行時計算值
       firstRun = false;
     }
     return cachedValue;  // 返回緩存的結果
