@@ -1,8 +1,16 @@
 # Fine-Grained Reactivity State
+- 目錄:  
+
+## 簡介  
 做這個主題主要是想實踐一個 React 環境下的 Reactivity State Management, 也就是真正意義上的 Signal, 請務必先閱讀下面兩篇文章。  
 [Introduction to Fine-Grained Reactivity](https://dev.to/ryansolid/a-hands-on-introduction-to-fine-grained-reactivity-3ndf)  
 [Building a Reactive Library from Scratch](https://dev.to/ryansolid/building-a-reactive-library-from-scratch-1i0p)  
-我所做的研究是實踐上述提供的作法並與 React 環境下結合，這邊要讓大家先了解 signal pattern 與 observer pattern 之間些微的差異：  
+我所做的研究是實踐上述提供的作法並與 React 環境下結合。  
+## 關於Signal
+Signal 是一種Reactivity(響應式)狀態管理方式，能夠高效的追蹤狀態變化，並更新相關的計算或組件。本指南將帶您一步步實現一個自定義的 Signal 狀態管理庫，支持基本的狀態管理、對象類型處理、並與 React 集成、批量更新以及異步操作。
+
+## 與Observer之間的差異  
+
 1. 概念與範疇  
 
   - Signal:  
@@ -63,7 +71,7 @@
     -	比如用於設計通知系統、事件總線或跨模塊的數據更新通知。  
 
 
-比較總表：  
+6. 比較總表：  
 
 | 特性 | 	Signal	| Observer Pattern |
 | --- | --- | --- |
