@@ -14,8 +14,8 @@ const App = () => {
       {/* <RenderForPreact /> */}
       {/* <DisplayMySignal />
       <DisplayProxyVersion /> */}
-      {/* <RenderTemplate/> */}
-      <DisplayAsyncSignal />
+      <RenderTemplate/>
+      {/* <DisplayAsyncSignal /> */}
     </div>
   );
 };
