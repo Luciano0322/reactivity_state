@@ -2,11 +2,6 @@ import { createEffect, createMySignal } from "./signal/core"
 const countSignal = createMySignal(0);
 
 export function setupAdder(element: HTMLButtonElement) {
-  // let counter = 0
-  // const setCounter = (count: number) => {
-  //   counter = count
-  //   element.innerHTML = `count is ${counter}`
-  // }
   element.innerHTML = `+`
   const setCounter = (count: number) => {
     countSignal.write(count);
