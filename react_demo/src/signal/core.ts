@@ -24,6 +24,9 @@ export function endBatch() {
 }
 
 // 運行批量更新
+// 理解 runInBatch 的作用
+// 用於在批量更新的context中執行傳入的function。
+// 目的在更新多個 Signal 時候，可以防止不必要的重複計算和组件重新渲染。
 export function runInBatch(fn: () => void) {
   startBatch();
   try {
