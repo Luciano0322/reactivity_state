@@ -10,3 +10,9 @@ export interface MySignal<T> {
   // subscribe: (computation: Computation) => void;
   // unsubscribe: (computation: Computation) => void;
 }
+
+export type SignalType<T> = T extends object ? SignalObject<T> : MySignal<T>;
+
+export type SignalObject<T extends object> = {
+  [K in keyof T]: SignalType<T[K]>;
+};

@@ -1,4 +1,4 @@
-import { Computation, MySignal } from "./types";
+import { Computation, MySignal, SignalObject, SignalType } from "./types";
 
 export const context: Computation[] = [];
 
@@ -51,29 +51,28 @@ function isObject(value: any): value is object {
   return typeof value === 'object' && value !== null;
 }
 
-export function createMySignal<T extends object>(
-  initialValue: T
-): { [K in keyof T]: MySignal<T[K]> };
-export function createMySignal<T>(
-  initialValue: T
-): MySignal<T>;
+// export function createMySignal<T extends object>(initialValue: T): SignalObject<T>;
+// export function createMySignal<T>(initialValue: T): MySignal<T>;
 
 // 通用型信號創建函數，判斷是否為物件型別
-export function createMySignal<T>(initialValue: T): any {
+export function createMySignal<T>(initialValue: T): SignalType<T> {
   if (isObject(initialValue)) {
-    return createSignalObject(initialValue);
+    return createSignalObject(initialValue as any) as SignalType<T>;
   } else {
-    return createPrimitiveSignal(initialValue);
+    return createPrimitiveSignal(initialValue) as SignalType<T>;
   }
 }
 
 // 解決物件型別深淺拷貝的問題, 用於處理非物件的單一值
-export function createSignalObject<T extends object>(initialValue: T): { [K in keyof T]: MySignal<T[K]> } {
-  const signals = {} as { [K in keyof T]: MySignal<T[K]> };
+export function createSignalObject<T extends object>(initialValue: T): SignalObject<T> {
+  const signals = {} as SignalObject<T>;
 
-  // 使用 Object.keys 來處理屬性
-  for (const key of Object.keys(initialValue) as (keyof T)[]) {
-    signals[key] = createMySignal(initialValue[key]);
+  for (const key in initialValue) {
+    if (Object.prototype.hasOwnProperty.call(initialValue, key)) {
+      const typedKey = key as keyof T;
+      const value = initialValue[typedKey];
+      signals[typedKey] = createMySignal(value) as SignalType<T[typeof typedKey]>;
+    }
   }
 
   return signals;
