@@ -163,25 +163,38 @@ describe('Signal Implementation Tests', () => {
 
     expect(effectExecutionCount).toBe(1);
 
-    // 改变 signalB，不应触发 effect，因为未依赖
+    // 改變 signalB，不應該觸發 effect，因為未依賴
     signalB.write(1);
     expect(effectExecutionCount).toBe(1);
 
-    // 改变 signalA，effect 应该执行并建立对 signalB 的依赖
+    // 改變 signalA，effect 應該要執行並建立對 signalB 的依賴
     signalA.write(1);
     expect(effectExecutionCount).toBe(2);
 
-    // 再次改变 signalB，effect 应该执行
+    // 再次改變 signalB，effect 要執行
     signalB.write(2);
     expect(effectExecutionCount).toBe(3);
 
-    // 将 signalA 改回 0，effect 不再依赖于 signalB
+    // 將 signalA 改回 0，effect 不再依賴 signalB
     signalA.write(0);
     expect(effectExecutionCount).toBe(4);
 
-    // 改变 signalB，不应再触发 effect
+    // 只改變 signalB，不應該觸發 effect
     signalB.write(3);
     expect(effectExecutionCount).toBe(4);
+  });
+
+  it('should support updater function in write method', () => {
+    const signal = createPrimitiveSignal(0);
+  
+    signal.write(5);
+    expect(signal.read()).toBe(5);
+  
+    signal.write((prev) => prev + 1);
+    expect(signal.read()).toBe(6);
+  
+    signal.write((prev) => prev * 2);
+    expect(signal.read()).toBe(12);
   });
 
   it('should handle object signals created by createMySignal', () => {
@@ -209,6 +222,21 @@ describe('Signal Implementation Tests', () => {
     signals.nested.count.write(5);
 
     expect(signals.nested.count.read()).toBe(5);
+  });
+
+  it('should support array', () => {
+    const initialValue = [1,2,3,4];
+    const signals = createMySignal(initialValue);
+
+    expect(signals.read()).toBe(initialValue);
+    // 更新数组内容
+    initialValue.push(5);
+    expect(signals.read()).toEqual([1,2,3,4,5]);
+
+    // 使用 write 更新信号的值
+    const newArray = [10, 20, 30];
+    signals.write(newArray);
+    expect(signals.read()).toBe(newArray);
   });
 
   it('should execute computations in correct context', () => {

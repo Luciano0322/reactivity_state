@@ -1,4 +1,4 @@
-import { Computation, MySignal } from "./types";
+import { Computation, MySignal, SignalObject, SignalType } from "./types";
 import { unstable_batchedUpdates } from 'react-dom';
 
 export const context: Computation[] = [];
@@ -51,32 +51,42 @@ export function cleanupDependencies(computation: Computation) {
 // 回傳加了subscribe, unsubscribe 為了方便與 useSyncExternalStore hook 整合
 // 判斷是否為物件類型
 function isObject(value: any): value is object {
-  return typeof value === 'object' && value !== null;
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-export function createMySignal<T extends object>(
-  initialValue: T
-): { [K in keyof T]: MySignal<T[K]> };
-export function createMySignal<T>(
-  initialValue: T
-): MySignal<T>;
+// export function createMySignal<T extends object>(
+//   initialValue: T
+// ): { [K in keyof T]: MySignal<T[K]> };
+// export function createMySignal<T>(
+//   initialValue: T
+// ): MySignal<T>;
 
 // 通用型信號創建函數，判斷是否為物件型別
-export function createMySignal<T>(initialValue: T): any {
-  if (isObject(initialValue)) {
-    return createSignalObject(initialValue);
+export function createMySignal<T>(initialValue: T): SignalType<T> {
+  if(Array.isArray(initialValue)) {
+    return createPrimitiveSignal(initialValue) as SignalType<T>;
+  } else if (isObject(initialValue)) {
+    return createSignalObject(initialValue as any) as SignalType<T>;
   } else {
-    return createPrimitiveSignal(initialValue);
+    return createPrimitiveSignal(initialValue) as SignalType<T>;
   }
 }
 
 // 解決物件型別深淺拷貝的問題, 用於處理非物件的單一值
-export function createSignalObject<T extends object>(initialValue: T): { [K in keyof T]: MySignal<T[K]> } {
-  const signals = {} as { [K in keyof T]: MySignal<T[K]> };
-
+// export function createSignalObject<T extends object>(initialValue: T): { [K in keyof T]: MySignal<T[K]> } {
+export function createSignalObject<T extends object>(initialValue: T): SignalObject<T> {
+  // const signals = {} as { [K in keyof T]: MySignal<T[K]> };
+  const signals = {} as SignalObject<T>;
   // 使用 Object.keys 來處理屬性
-  for (const key of Object.keys(initialValue) as (keyof T)[]) {
-    signals[key] = createMySignal(initialValue[key]);
+  // for (const key of Object.keys(initialValue) as (keyof T)[]) {
+  //   signals[key] = createMySignal(initialValue[key]);
+  // }
+  for (const key in initialValue) {
+    if (Object.prototype.hasOwnProperty.call(initialValue, key)) {
+      const typedKey = key as keyof T;
+      const value = initialValue[typedKey];
+      signals[typedKey] = createMySignal(value) as SignalType<T[typeof typedKey]>;
+    }
   }
 
   return signals;
@@ -100,11 +110,17 @@ export function createPrimitiveSignal<T>(value: T): MySignal<T> {
     return value;
   };
 
-  const write = (nextValue: T) => {
-    value = nextValue;
-    for (const sub of [...subscriptions]) {
-      // sub.execute(); 
-      scheduleUpdate(sub);
+  // 新增可以帶入callback取前值的方式修改
+  const write = (nextValue: T | ((prevValue: T) => T)) => {
+    const newValue = typeof nextValue === 'function'
+      ? (nextValue as (prevValue: T) => T)(value)
+      : nextValue;
+
+    if (newValue !== value) {
+      value = newValue;
+      for (const sub of [...subscriptions]) {
+        scheduleUpdate(sub);
+      }
     }
   };
 

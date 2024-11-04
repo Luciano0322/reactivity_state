@@ -4,7 +4,7 @@ import { cleanupDependencies, context, runWithContext, subscribe, withContext } 
 
 // 傳統與state綁定，參考jotai useAtom作法
 export function useMySignalv1<T>(
-  signal: { read: () => T; write: (v: T) => void }
+  signal: { read: () => T; write: (value: T | ((prevValue: T) => T)) => void; }
 ): [T, (v: T) => void] {
   const [value, setValue] = useState<T>(signal.read());
 

@@ -12,10 +12,10 @@ const App = () => {
       <h1>Rsbuild with React</h1>
       {/* <DisplayPreactSignal /> */}
       {/* <RenderForPreact /> */}
-      {/* <DisplayMySignal />
-      <DisplayProxyVersion /> */}
-      {/* <RenderTemplate/> */}
-      <DisplayAsyncSignal />
+      <DisplayMySignal />
+      {/* <DisplayProxyVersion /> */}
+      <RenderTemplate/>
+      {/* <DisplayAsyncSignal /> */}
     </div>
   );
 };

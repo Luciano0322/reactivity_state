@@ -55,7 +55,7 @@ const OrderBtns: React.FC = () => {
     >
       <button
         // onClick={() => setStore({ ...data, [value]: (data[value] as number) - 1 })}
-        onClick={() => storeSignal[value].write(data - 1)}
+        onClick={() => storeSignal[value].write((pre) => pre - 1)}
       >
         -
       </button>

@@ -13,14 +13,15 @@ const DisplayMySignal: FC = () => {
   // };
   // createEffect(() => console.log('countSignal: ', countSignal.read()))
   const increment = () => {
-    countSignal.write(countSignal.read() + 1);
+    // countSignal.write(count + 1);
+    countSignal.write((pre) => pre +1);
   }
   return (
     <>
       <h3>按照 solid js 的作法所實現的 signal</h3>
       <p>{count}</p>
       <div>
-        <button onClick={increment}>count: {countSignal.read()} {Math.random()}</button>
+        <button onClick={increment}>count: {countSignal.read()}</button>
       </div>
     </>
   ); 

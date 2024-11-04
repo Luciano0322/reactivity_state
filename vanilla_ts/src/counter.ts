@@ -23,6 +23,7 @@ export function setupMiner(element: HTMLButtonElement) {
 }
 
 export function countDisplay(element: HTMLParagraphElement) {
+  // element.innerText = `Display for count: ${countSignal.read()}`; // 透過 effect 來達到訂閱的目的
   createEffect(() => {element.innerText = `Display for count: ${countSignal.read()}`});
 }
 

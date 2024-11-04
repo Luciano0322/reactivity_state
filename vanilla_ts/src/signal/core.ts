@@ -48,7 +48,7 @@ export function cleanupDependencies(computation: Computation) {
 // 回傳加了subscribe, unsubscribe 為了方便與 useSyncExternalStore hook 整合
 // 判斷是否為物件類型
 function isObject(value: any): value is object {
-  return typeof value === 'object' && value !== null;
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 // export function createMySignal<T extends object>(initialValue: T): SignalObject<T>;
@@ -56,7 +56,9 @@ function isObject(value: any): value is object {
 
 // 通用型信號創建函數，判斷是否為物件型別
 export function createMySignal<T>(initialValue: T): SignalType<T> {
-  if (isObject(initialValue)) {
+  if(Array.isArray(initialValue)) {
+    return createPrimitiveSignal(initialValue) as SignalType<T>;
+  } else if (isObject(initialValue)) {
     return createSignalObject(initialValue as any) as SignalType<T>;
   } else {
     return createPrimitiveSignal(initialValue) as SignalType<T>;
@@ -95,14 +97,20 @@ export function createPrimitiveSignal<T>(value: T): MySignal<T> {
     if (running) subscribe(running, subscriptions);
     return value;
   };
+  // 新增可以帶入callback取前值的方式修改
+  const write = (nextValue: T | ((prevValue: T) => T)) => {
+    const newValue = typeof nextValue === 'function'
+      ? (nextValue as (prevValue: T) => T)(value)
+      : nextValue;
 
-  const write = (nextValue: T) => {
-    value = nextValue;
-    for (const sub of [...subscriptions]) {
-      // sub.execute(); 
-      scheduleUpdate(sub);
+    if (newValue !== value) {
+      value = newValue;
+      for (const sub of [...subscriptions]) {
+        scheduleUpdate(sub);
+      }
     }
   };
+
   // 不需要與React 融合的情況下不需要回傳，避免開發者誤用
   // const subscribeToSignal = (computation: Computation) => {
   //   subscriptions.add(computation);  // 添加訂閱
