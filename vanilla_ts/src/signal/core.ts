@@ -104,20 +104,20 @@ export function createPrimitiveSignal<T>(value: T): MySignal<T> {
       scheduleUpdate(sub);
     }
   };
+  // 不需要與React 融合的情況下不需要回傳，避免開發者誤用
+  // const subscribeToSignal = (computation: Computation) => {
+  //   subscriptions.add(computation);  // 添加訂閱
+  // };
 
-  const subscribeToSignal = (computation: Computation) => {
-    subscriptions.add(computation);  // 添加訂閱
-  };
-
-  const unsubscribeFromSignal = (computation: Computation) => {
-    subscriptions.delete(computation);  // 移除訂閱
-  };
+  // const unsubscribeFromSignal = (computation: Computation) => {
+  //   subscriptions.delete(computation);  // 移除訂閱
+  // };
 
   return { 
     read, 
     write,
-    subscribe: subscribeToSignal,
-    unsubscribe: unsubscribeFromSignal,
+    // subscribe: subscribeToSignal,
+    // unsubscribe: unsubscribeFromSignal,
   };
 }
 

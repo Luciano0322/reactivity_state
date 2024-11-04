@@ -3,6 +3,7 @@ import typescriptLogo from './typescript.svg'
 import viteLogo from '/vite.svg'
 import { countDisplay, setupAdder, setupMiner } from './counter.ts'
 import { setupInput, setupOrderAdder, setupOrderMiner, systemCountDisplay, systemNameDisplay } from './system.ts'
+import { pokemonsDisplay } from './apis.ts'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
@@ -37,6 +38,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <p id="system_name"></p>
       </div>
     </div>
+    <div class="card">
+      <p id="pokemons_Data"></p>
+    </div>
     <p class="read-the-docs">
       Click on the Vite and TypeScript logos to learn more
     </p>
@@ -51,3 +55,4 @@ setupOrderAdder(document.querySelector<HTMLButtonElement>('#order_adder')!)
 setupInput(document.querySelector<HTMLInputElement>('#system_input')!)
 systemCountDisplay(document.querySelector<HTMLParagraphElement>('#system_count')!)
 systemNameDisplay(document.querySelector<HTMLParagraphElement>('#system_name')!)
+pokemonsDisplay(document.querySelector<HTMLParagraphElement>('#pokemons_Data')!)
