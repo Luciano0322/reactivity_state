@@ -14,7 +14,7 @@ const DisplayProxyVersion: FC = () => {
       <h3>改成以 Proxy 為基底的作法所實現的 signal</h3>
       <p>{reactiveState.count}</p>
       <div>
-        <button onClick={increment}>count: {state.getSnapshot().count} {(Math.random())}</button>
+        <button onClick={increment}>count: {state.getSnapshot().count}</button>
       </div>
     </>
   ); 
