@@ -105,16 +105,16 @@ describe('Signal Implementation Tests', () => {
     // 初次執行 effect
     expect(effectExecuted).toBe(true);
 
-    // 重置标志
+    // 重置flag
     effectExecuted = false;
 
     await withContext(async () => {
-      // 模拟异步操作
+      // 模擬 async 操作
       await new Promise((resolve) => setTimeout(resolve, 10));
       signal.write(1);
     });
 
-    // 异步操作完成后，effect 应该被执行
+    // async 操作完成之後，effect 要被執行
     expect(effectExecuted).toBe(true);
   });
 
@@ -134,16 +134,16 @@ describe('Signal Implementation Tests', () => {
     expect(effectExecutionCount).toBe(1);
     expect(observedValue).toBe(0);
 
-    // 改变 signalB，不应触发 effect，因为未依赖
+    // 改變 signalB，不應該觸發 effect，因為沒有依賴
     signalB.write(1);
     expect(effectExecutionCount).toBe(1);
 
-    // 改变 signalA，effect 应该执行并读取 signalB
+    // 改變 signalA，effect 應該執行並讀取 signalB
     signalA.write(1);
     expect(effectExecutionCount).toBe(2);
     expect(observedValue).toBe(1);
 
-    // 再次改变 signalB，现在 effect 已经依赖于 signalB，应触发 effect
+    // 再次改變 signalB，現在 effect 已經依賴於 signalB，要觸發 effect
     signalB.write(2);
     expect(effectExecutionCount).toBe(3);
     expect(observedValue).toBe(2);
