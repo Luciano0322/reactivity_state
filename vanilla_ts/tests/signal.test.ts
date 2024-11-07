@@ -201,14 +201,15 @@ describe('Signal Implementation Tests', () => {
     const initialValue = { count: 0, name: 'Test' };
     const signals = createMySignal(initialValue);
 
-    // 检查返回的信号对象
+    // 檢查返回的signal
     expect(signals.count.read()).toBe(0);
     expect(signals.name.read()).toBe('Test');
 
-    // 更新信号值
+    // 寫入新的值
     signals.count.write(10);
     signals.name.write('Updated');
 
+    // 必須即時更新
     expect(signals.count.read()).toBe(10);
     expect(signals.name.read()).toBe('Updated');
   });
@@ -229,11 +230,11 @@ describe('Signal Implementation Tests', () => {
     const signals = createMySignal(initialValue);
 
     expect(signals.read()).toBe(initialValue);
-    // 更新数组内容
+    // 更新array的內容
     initialValue.push(5);
     expect(signals.read()).toEqual([1,2,3,4,5]);
 
-    // 使用 write 更新信号的值
+    // 使用 write 更新array
     const newArray = [10, 20, 30];
     signals.write(newArray);
     expect(signals.read()).toBe(newArray);
@@ -244,7 +245,7 @@ describe('Signal Implementation Tests', () => {
     let contextValue: Computation | undefined;
     let effectComputation: Computation | undefined;
 
-    // 创建 effect，并在其中访问 context
+    // 使用 effect，並在其中調取 context
     createEffect(() => {
       effectComputation = context[context.length - 1]; // 获取当前的 computation
 
@@ -255,16 +256,16 @@ describe('Signal Implementation Tests', () => {
         });
       };
 
-      signal.read(); // 建立依赖
+      signal.read(); // 建立依賴
     });
 
-    // 初次执行后，effectComputation 应该已被设置
+    // 初次執行後，effectComputation 應該已經被設定
     expect(effectComputation).not.toBeUndefined();
 
-    // 触发 signal 更新，effect 将被重新执行
+    // 觸發 signal 更新，effect 將被重新執行
     signal.write(1);
 
-    // 检查 contextValue 是否等于 effectComputation
+    // 檢查 contextValue 是否等於 effectComputation
     expect(contextValue).toBe(effectComputation);
   });
 
@@ -280,7 +281,7 @@ describe('Signal Implementation Tests', () => {
       }
     });
 
-    // 由于条件限制，effect 应该只执行 6 次（包括初始执行）
+    // 依據條件限制，effect 應該只有執行 6 次（包括初次執行）
     expect(executionCount).toBe(6);
     expect(signal.read()).toBe(5);
   });

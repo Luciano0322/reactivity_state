@@ -7,8 +7,22 @@
 [Introduction to Fine-Grained Reactivity](https://dev.to/ryansolid/a-hands-on-introduction-to-fine-grained-reactivity-3ndf)  
 [Building a Reactive Library from Scratch](https://dev.to/ryansolid/building-a-reactive-library-from-scratch-1i0p)  
 我所做的研究是實踐上述提供的作法並與 React 環境下結合。  
+
 ## 關於Signal
-Signal 是一種Reactivity(響應式)狀態管理方式，能夠高效的追蹤狀態變化，並更新相關的計算或組件。本指南將帶您一步步實現一個自定義的 Signal 狀態管理庫，支持基本的狀態管理、對象類型處理、並與 React 集成、批量更新以及異步操作。
+Signal 是一種Reactivity(響應式)狀態管理方式，能夠高效的追蹤狀態變化，並更新相關的計算或組件。  
+
+本指南將帶您一步步實現一個自定義的 Signal 狀態管理庫，支持基本的狀態管理、對象類型處理、並與 React 集成、批量更新以及異步操作。
+
+## Signal核心特性
+- Signal:  
+  Signal 是一個包装值的對象，包含對該值的讀取和寫入方法，以及訂閱變化的能力。  
+- 創建的方式:  
+  可以通過 Signal 類或hook pattern來創建一個新的 Signal：
+  ```ts
+  const count = new Signal(0);
+  // 或者
+  const count = createSignal(0);
+  ```
 
 ## 與Observer之間的差異  
 
