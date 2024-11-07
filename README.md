@@ -22,7 +22,50 @@ Signal 是一種Reactivity(響應式)狀態管理方式，能夠高效的追蹤�
   const count = new Signal(0);
   // 或者
   const count = createSignal(0);
-  ```
+  ```  
+
+- 讀取和寫入 Signal:  
+  會依照選用pattern的不同有些微差異，如果是 hook 的方式會和他文章內提供的作法類似，另一種就是像Vue提供的處理方式  
+  - 讀取：
+  ```ts
+  const value = count.value;
+  // 或者
+  const value = count.getValue();
+  ```  
+  - 寫入：  
+  ```ts
+  count.value = newValue;
+  // 或者
+  count.setValue(newValue);
+  ```  
+
+- Effect:  
+  Effect 是一個函數，當其依賴的 Signal 發生變化時，會自動重新執行。通過 Effect，可以自動追蹤對 Signal 的讀取，並建立依賴關係。  
+  ```ts
+  effect(() => {
+    console.log(`Count is: ${count.value}`);
+  });
+  // 或者
+  effect(() => {
+    console.log(`Count is: ${count.getValue()}`);
+  });
+  ```  
+  當 count.value 發生變化時，傳入 effect 的函數會被重新執行。  
+- 範例  
+  ```ts
+  const count = new Signal(0);
+
+  // 透過 effect，當 count 變化時自動執行
+  effect(() => {
+    console.log(`Count changed to: ${count.value}`);
+  });
+
+  // 更新 Signal 的值
+  count.value = 1; // 終端機輸出: Count changed to: 1
+  count.value = 2; 
+  ```  
+
+
 
 ## 與Observer之間的差異  
 
