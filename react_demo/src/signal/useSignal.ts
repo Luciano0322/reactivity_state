@@ -1,6 +1,6 @@
 import { useState, useEffect, useSyncExternalStore } from 'react';
 import { Computation, MySignal } from './types';
-import { cleanupDependencies, context, runWithContext, subscribe, withContext } from './core';
+import { cleanupDependencies, context, runWithContext, scheduleComputation, subscribe, withContext } from './core';
 
 // 傳統與state綁定，參考jotai useAtom作法
 export function useMySignalv1<T>(
@@ -13,6 +13,8 @@ export function useMySignalv1<T>(
       dependencies: new Set(),
       // 對應文章中的createEffect
       execute() {
+        if (!computation.dirty) return; // 如果不需要更新，直接返回
+        computation.dirty = false; // 重置標記
         // 對應文章中的clean up function
         for (const dep of computation.dependencies) {
           dep.delete(computation);
@@ -28,17 +30,15 @@ export function useMySignalv1<T>(
           context.pop();
         }
       },
+      dirty: true,
     };
 
     // 初次執行
-    computation.execute();
-
+    // computation.execute();
+    scheduleComputation(computation);
     // 清理依賴
     return () => {
-      for (const dep of computation.dependencies) {
-        dep.delete(computation);
-      }
-      computation.dependencies.clear();
+      cleanupDependencies(computation)
     };
   }, [signal]);
 
@@ -49,34 +49,6 @@ export function useMySignalv1<T>(
 
   return [value, setSignal];
 }
-// 改使用useSyncExternalStore處理
-export function useMySignalv2<T>(
-  signal: { read: () => T; write: (v: T) => void }
-) {
-  return useSyncExternalStore(
-    (onStoreChange) => {
-      // 自定義的 Computation 中的 execute 方法應該觸發這個回調
-      const subscription = {
-        execute: onStoreChange,
-        dependencies: new Set<Set<Computation>>(),
-      };
-
-      // 將該訂閱加入到 context 中
-      context.push(subscription);
-
-      // 返回取消訂閱的方法
-      return () => {
-        // 移除訂閱
-        context.splice(context.indexOf(subscription), 1);
-      };
-    },
-    // 返回當前的 signal 值
-    () => signal.read(),
-
-    // 伺服器端渲染快照：如果有伺服器渲染需求，可使用此方法來獲取伺服器端的值
-    () => signal.read()
-  )
-}
 
 // 更接近solid js設計的signal
 export function useMySignal<T>(signal: MySignal<T>) {
@@ -84,12 +56,14 @@ export function useMySignal<T>(signal: MySignal<T>) {
   const value = useSyncExternalStore(
     (onStoreChange) => {
       // 這裡會自動訂閱 signal
-      const computation: Computation = {
-        execute: onStoreChange,        // 當信號變化時觸發
-        dependencies: new Set()        // 用於追蹤依賴
-      };
-      signal.subscribe(computation);  // 訂閱信號
-      return () => signal.unsubscribe(computation);
+      // const computation: Computation = {
+      //   execute: onStoreChange,        // 當信號變化時觸發
+      //   dependencies: new Set()        // 用於追蹤依賴
+      // };
+      // signal.subscribe(computation);  // 訂閱信號
+      // return () => signal.unsubscribe(computation);
+      // 調整以符合 push-pull
+      return signal.subscribe(onStoreChange)
     },
     () => signal.read(),
     // 伺服器端渲染快照：如果有伺服器渲染需求，可使用此方法來獲取伺服器端的值
@@ -103,22 +77,35 @@ export function useMySignal<T>(signal: MySignal<T>) {
 // dependencies 必須符合 useEffect 的規範
 export function useMySignalEffect(fn: () => void, dependencies: any[]) {
   useEffect(() => {
-    const execute = () => {
-      cleanupDependencies(running);
-      context.push(running);
-      try {
-        fn();
-      } finally {
-        context.pop();
-      }
-    };
+    // const execute = () => {
+    //   cleanupDependencies(running);
+    //   context.push(running);
+    //   try {
+    //     fn();
+    //   } finally {
+    //     context.pop();
+    //   }
+    // };
 
+    // const running: Computation = {
+    //   execute,
+    //   dependencies: new Set(),
+    // };
+    // 調整以符合 push-pull
     const running: Computation = {
-      execute,
+      execute: () => {
+        if (!running.dirty) return;
+        running.dirty = false;
+        cleanupDependencies(running);
+        runWithContext(running, fn);
+      },
       dependencies: new Set(),
+      dirty: true,
     };
 
-    execute();
+    // execute();
+    // 調整以符合 push-pull, 初次調用
+    scheduleComputation(running);
 
     // Cleanup when dependencies change or component unmounts
     return () => {
@@ -129,14 +116,28 @@ export function useMySignalEffect(fn: () => void, dependencies: any[]) {
 
 export function useMySignalAsyncEffect(effect: () => Promise<void>, dependencies: any[]) {
   useEffect(() => {
+    // const running: Computation = {
+    //   execute: () => {
+    //     cleanupDependencies(running);
+    //   },
+    //   dependencies: new Set(),
+    // };
+
+    // withContext(effect);
+    // 調整以符合 push-pull
     const running: Computation = {
-      execute: () => {
+      execute: async () => {
+        if (!running.dirty) return;
+        running.dirty = false;
         cleanupDependencies(running);
+        await withContext(effect);
       },
       dependencies: new Set(),
+      dirty: true,
     };
 
-    withContext(effect);
+    // 调度计算
+    scheduleComputation(running);
 
     return () => {
       cleanupDependencies(running);

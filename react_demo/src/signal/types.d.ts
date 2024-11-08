@@ -1,13 +1,18 @@
 export interface Computation {
   dependencies: Set<Set<Computation>>;
   execute: () => void;
+  // 調整以符合push-pull
+  dirty: boolean; // 新增屬性，標記計算是否需要更新
+  value?: any; // 緩存計算結果
 }
 
 export interface MySignal<T> {
   read: () => T;
   write: (value: T | ((prevValue: T) => T)) => void;
-  subscribe: (computation: Computation) => void;
-  unsubscribe: (computation: Computation) => void;
+  // subscribeComputation: (computation: Computation) => void;
+  // unsubscribeComputation: (computation: Computation) => void;
+  // 修改以符合push-pull
+  subscribe: (listener: () => void) => () => void;
 }
 
 export type SignalType<T> = T extends any[]

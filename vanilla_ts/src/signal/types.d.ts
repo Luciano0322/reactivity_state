@@ -1,6 +1,9 @@
 export interface Computation {
   dependencies: Set<Set<Computation>>;
   execute: () => void;
+  // 調整以符合push-pull
+  dirty: boolean; // 新增屬性，標記計算是否需要更新
+  value?: any; // 緩存計算結果
 }
 
 export interface MySignal<T> {

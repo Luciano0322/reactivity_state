@@ -8,10 +8,17 @@
 [Building a Reactive Library from Scratch](https://dev.to/ryansolid/building-a-reactive-library-from-scratch-1i0p)  
 我所做的研究是實踐上述提供的作法並與 React 環境下結合。  
 
+## 背景  
+事實上，TC39 正在考慮為 JavaScript 新增一種原生的響應式編程機制，也就是 [Signals](https://github.com/tc39/proposal-signals)。該提案旨在提供一種高效且易於使用的方式來管理應用程序狀態的變化，並自動更新依賴於這些狀態的部分。  
+
+在現今 Web 發展的過程，響應式編程(Reactivity)變得越來越重要。開發者經常需要管理狀態的變化，並確保 UI 或其他依賴狀態的部分能夠及時更新。目前，這通常通過框架（如 React、Vue、Angular）或第三方的lib（如 MobX、RxJS）來實現。然而，這些解決方案都需要額外的lib支持，且各有不同的實現方法。
+
+這篇主要就是針對 signal 的底層邏輯一步步實作出真正意義上的細粒度響應式狀態管理工具(Fine-Grained Reactivity library)
+
 ## 關於Signal
 Signal 是一種Reactivity(響應式)狀態管理方式，能夠高效的追蹤狀態變化，並更新相關的計算或組件。  
 
-本指南將帶您一步步實現一個自定義的 Signal 狀態管理庫，支持基本的狀態管理、對象類型處理、並與 React 集成、批量更新以及異步操作。
+本篇將帶您一步步實現一個自定義的 Signal 狀態管理庫，支持基本的狀態管理、對象類型處理、並與 React 集成、批量更新以及異步操作。
 
 ## Signal核心特性
 - Signal:  

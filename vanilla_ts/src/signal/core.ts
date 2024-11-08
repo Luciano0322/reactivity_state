@@ -89,8 +89,9 @@ function scheduleUpdate(computation: Computation) {
   }
 }
 
-export function createPrimitiveSignal<T>(value: T): MySignal<T> {
+export function createPrimitiveSignal<T>(initialValue: T): MySignal<T> {
   const subscriptions = new Set<Computation>();
+  let value = initialValue;
 
   const read = () => {
     const running = context[context.length - 1];
@@ -106,7 +107,12 @@ export function createPrimitiveSignal<T>(value: T): MySignal<T> {
     if (newValue !== value) {
       value = newValue;
       for (const sub of [...subscriptions]) {
-        scheduleUpdate(sub);
+        // scheduleUpdate(sub);
+        // 調整成符合push-pull
+        if(!sub.dirty) {
+          sub.dirty = true; // 標記訂閱者為需要更新
+          scheduleComputation(sub);
+        }
       }
     }
   };
@@ -161,33 +167,73 @@ export function withContext<T>(fn: () => Promise<T>): Promise<T> {
 export function createEffect(fn: () => void) {
   const running: Computation = {
     execute: () => {
+      // 調整符合push-pull
+      if (!running.dirty) return; // 如果不需要更新，直接返回
+      running.dirty = false; // 重置標記
       cleanupDependencies(running);
       runWithContext(running, fn);
     },
     dependencies: new Set(),
+    dirty: true, // 設定初始狀態為需要更新，確保第一次執行
   };
-
-  running.execute();  // 初次運行 effect
+  // running.execute();  // 初次運行 effect
+  // 調整符合push-pull，不再立即執行 running.execute();
+  // 改為需要時執行
+  scheduleComputation(running);
 }
 
 // for 其他框架或是純html, js, css 環境下應用, 調整以符合 async 情境的處理
 export function createMemo<T>(fn: () => T): () => T {
-  let cachedValue: T;
-  let firstRun = true;
+  // 修改以符合push-pull
+  // let cachedValue: T;
+  // let firstRun = true;
 
   const running: Computation = {
     execute: () => {
+      // 修改以符合push-pull
+      if (!running.dirty) return;
+      running.dirty = false;
       cleanupDependencies(running);
-      cachedValue = runWithContext(running, fn);
+      running.value = runWithContext(running, fn);
     },
     dependencies: new Set(),
+    dirty: true,
+    value: undefined,
   };
 
+  // return () => {
+  //   if (firstRun) {
+  //     running.execute();  // 初次運行時計算值
+  //     firstRun = false;
+  //   }
+  //   return cachedValue;  // 返回緩存的結果
+  // };
+  // 修改以符合push-pull
   return () => {
-    if (firstRun) {
-      running.execute();  // 初次運行時計算值
-      firstRun = false;
+    if (running.dirty) {
+      running.execute();
     }
-    return cachedValue;  // 返回緩存的結果
+    return running.value as T;
   };
+}
+
+// 修改以符合push-pull，新增任務調度制度
+const dirtyComputations = new Set<Computation>();
+let isFlushing = false;
+
+function scheduleComputation(computation: Computation) {
+  dirtyComputations.add(computation);
+
+  if (!isFlushing) {
+    isFlushing = true;
+    queueMicrotask(flushComputations);
+  }
+}
+
+function flushComputations() {
+  for (const computation of dirtyComputations) {
+    computation.execute();
+  }
+  dirtyComputations.clear();
+  isFlushing = false;
 }
