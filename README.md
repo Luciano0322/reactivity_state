@@ -1,6 +1,12 @@
 # Fine-Grained Reactivity State
 
 - 目錄:  
+  - [簡介](#簡介)
+  - [背景](#背景)
+  - [關於Signal](#關於Signal)
+  - [Signal核心特性](#Signal核心特性)
+  - [API Architectures](#API-Architectures)
+  - [與Observer之間的差異](#與Observer之間的差異)
 
 ## 簡介  
 做這個主題主要是想實踐一個 React 環境下的 Reactivity State Management, 也就是真正意義上的 Signal, 請務必先閱讀下面兩篇文章。  
@@ -16,9 +22,6 @@
 [![](https://i.ytimg.com/vi_webp/N1Ho-4fhYxY/maxresdefault.webp)](https://www.youtube.com/embed/N1Ho-4fhYxY?si=OL4kG93_2WjdKH_X)
 
 這篇主要就是針對 signal 的底層邏輯一步步實作出真正意義上的細粒度響應式狀態管理工具(Fine-Grained Reactivity library);
-
-## 資料流動特性
-![資料流動](./source/data-flow.png)
 
 ## 關於Signal
 Signal 是一種Reactivity(響應式)狀態管理方式，能夠高效的追蹤狀態變化，並更新相關的計算或組件。  
@@ -77,6 +80,24 @@ Signal 是一種Reactivity(響應式)狀態管理方式，能夠高效的追蹤�
   count.value = 2; 
   ```  
 
+## API Architectures 
+![API Architectures](./source/data-flow.png)
+
+- pull: 我們常用的 useState 就是屬於這一種，在我們每次渲染時會去問，資料是否有異動，有異動要觸發重新渲染。    
+  - 特點：
+	  - 惰性執行(lazy)：只有在數據被請求時，才會進行或更新。	
+    - 主動獲取：用戶需要主動調用某个方法來獲取最新的數據。
+	  - 減少不必要的計算：如果數據未被請求，則不會進行計算，節省資源。 
+- push: 可以簡單理解為 rxjs 的 observer pattern，就是把資料直接往下傳遞，通知所有訂閱者資料現況。  
+  - 特點：
+    - 即時執行：一旦數據發生變化，相關的計算立即執行。
+	  - 被動接收：用戶被動地接收數據的更新，無需主動請求。
+	  - 實時性高：適用於需要立即響應數據變化的場景。  
+- Push-Pull: Push-Pull 结合了 Push 和 Pull 的特點。它在數據源頭發生變化時，會通知相關依賴者，但實際的計算可能會延遲到依賴者真正需要數據時才執行，例如useMemo，或是其他使用 signal 的框架。
+  - 特點：
+    - 通知更新：當數據源發生變化時，依賴者會被通知數據已過期或發生變化。
+    - 惰性計算(lazy)：依賴者在需要時才進行計算，獲取最新的數據。
+    - 減少不必要的計算：避免在數據頻繁變化但未被使用時進行多餘的計算。  
 
 
 ## 與Observer之間的差異  
