@@ -13,6 +13,8 @@
 
 在現今 Web 發展的過程，響應式編程(Reactivity)變得越來越重要。開發者經常需要管理狀態的變化，並確保 UI 或其他依賴狀態的部分能夠及時更新。目前，這通常通過框架（如 React、Vue、Angular）或第三方的lib（如 MobX、RxJS）來實現。然而，這些解決方案都需要額外的lib支持，且各有不同的實現方法。
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/N1Ho-4fhYxY?si=OL4kG93_2WjdKH_X" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>  
+
 這篇主要就是針對 signal 的底層邏輯一步步實作出真正意義上的細粒度響應式狀態管理工具(Fine-Grained Reactivity library)
 
 ## 關於Signal
