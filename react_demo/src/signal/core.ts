@@ -138,7 +138,7 @@ export function createPrimitiveSignal<T>(initialValue: T): MySignal<T> {
       }
     }
   };
-  // 調整以符合push-pull
+
   // const subscribeToSignal = (computation: Computation) => {
   //   subscriptions.add(computation);  // 添加訂閱
   // };
@@ -146,6 +146,7 @@ export function createPrimitiveSignal<T>(initialValue: T): MySignal<T> {
   // const unsubscribeFromSignal = (computation: Computation) => {
   //   subscriptions.delete(computation);  // 移除訂閱
   // };
+  // 調整以符合push-pull
   const subscribeExternal = (listener: () => void) => {
     externalListeners.add(listener);
     return () => {

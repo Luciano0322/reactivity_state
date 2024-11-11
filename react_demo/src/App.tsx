@@ -39,12 +39,6 @@ const App = () => {
           <DisplayAsyncSignal />
         </Tabs.Panel>
       </Tabs>
-      
-      
-      
-      
-      
-      
     </div>
   );
 };
