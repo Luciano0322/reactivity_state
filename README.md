@@ -15,7 +15,10 @@
 
 [![](https://i.ytimg.com/vi_webp/N1Ho-4fhYxY/maxresdefault.webp)](https://www.youtube.com/embed/N1Ho-4fhYxY?si=OL4kG93_2WjdKH_X)
 
-這篇主要就是針對 signal 的底層邏輯一步步實作出真正意義上的細粒度響應式狀態管理工具(Fine-Grained Reactivity library)
+這篇主要就是針對 signal 的底層邏輯一步步實作出真正意義上的細粒度響應式狀態管理工具(Fine-Grained Reactivity library);
+
+## 資料流動特性
+![資料流動](./source/data-flow.png)
 
 ## 關於Signal
 Signal 是一種Reactivity(響應式)狀態管理方式，能夠高效的追蹤狀態變化，並更新相關的計算或組件。  
