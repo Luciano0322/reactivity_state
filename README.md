@@ -1,13 +1,13 @@
 # Fine-Grained Reactivity State
 
-- 目錄:  
-  - [簡介](#簡介)
-  - [背景](#背景)
-  - [關於Signal](#關於Signal)
-  - [Signal核心特性](#Signal核心特性)
-  - [API Architectures](#API-Architectures)
-  - [與Observer之間的差異](#與Observer之間的差異)
-  - [目前的概況](#目前的概況)
+## 目錄:  
+- [簡介](#簡介)
+- [背景](#背景)
+- [關於Signal](#關於Signal)
+- [Signal核心特性](#Signal核心特性)
+- [API Architectures](#API-Architectures)
+- [與Observer之間的差異](#與Observer之間的差異)
+- [目前的概況](#目前的概況)
 
 ## 簡介  
 做這個主題主要是想實踐一個 React 環境下的 Reactivity State Management, 也就是真正意義上的 Signal, 請務必先閱讀下面兩篇文章。  
