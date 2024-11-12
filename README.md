@@ -1,6 +1,6 @@
 # Fine-Grained Reactivity State
 
-## 目錄:  
+## 目錄  
 - [簡介](#簡介)
 - [背景](#背景)
 - [關於Signal](#關於Signal)
