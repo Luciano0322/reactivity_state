@@ -16,10 +16,6 @@ export function endBatch() {
   batching = false;
   const computations = Array.from(pendingComputations);
   pendingComputations.clear();
-  // 這裡是以考量符合 React 環境下使用的，如果是其他框架這邊要去查各自的批量更新方法
-  // unstable_batchedUpdates(() => {
-  //   computations.forEach((comp) => comp.execute());
-  // });
   computations.forEach((comp) => comp.execute());
 }
 
@@ -45,14 +41,10 @@ export function cleanupDependencies(computation: Computation) {
   computation.dependencies.clear();
 }
 
-// 回傳加了subscribe, unsubscribe 為了方便與 useSyncExternalStore hook 整合
 // 判斷是否為物件類型
 function isObject(value: any): value is object {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
-
-// export function createMySignal<T extends object>(initialValue: T): SignalObject<T>;
-// export function createMySignal<T>(initialValue: T): MySignal<T>;
 
 // 通用型信號創建函數，判斷是否為物件型別
 export function createMySignal<T>(initialValue: T): SignalType<T> {
@@ -78,15 +70,6 @@ export function createSignalObject<T extends object>(initialValue: T): SignalObj
   }
 
   return signals;
-}
-
-// 調整以符合 react 的 batch update
-function scheduleUpdate(computation: Computation) {
-  if (batching) {
-    pendingComputations.add(computation);
-  } else {
-    computation.execute();
-  }
 }
 
 export function createPrimitiveSignal<T>(initialValue: T): MySignal<T> {
@@ -117,20 +100,9 @@ export function createPrimitiveSignal<T>(initialValue: T): MySignal<T> {
     }
   };
 
-  // 不需要與React 融合的情況下不需要回傳，避免開發者誤用
-  // const subscribeToSignal = (computation: Computation) => {
-  //   subscriptions.add(computation);  // 添加訂閱
-  // };
-
-  // const unsubscribeFromSignal = (computation: Computation) => {
-  //   subscriptions.delete(computation);  // 移除訂閱
-  // };
-
   return { 
     read, 
     write,
-    // subscribe: subscribeToSignal,
-    // unsubscribe: unsubscribeFromSignal,
   };
 }
 
@@ -163,7 +135,7 @@ export function withContext<T>(fn: () => Promise<T>): Promise<T> {
   });
 }
 
-// for 其他框架或是純html, js, css 環境下應用, 調整以符合 async 情境的處理
+// for 純html, js, css 環境下應用, 調整以符合 async 情境的處理
 export function createEffect(fn: () => void) {
   const running: Computation = {
     execute: () => {
@@ -182,7 +154,7 @@ export function createEffect(fn: () => void) {
   scheduleComputation(running);
 }
 
-// for 其他框架或是純html, js, css 環境下應用, 調整以符合 async 情境的處理
+// for 純html, js, css 環境下應用, 調整以符合 async 情境的處理
 export function createMemo<T>(fn: () => T): () => T {
   // 修改以符合push-pull
   // let cachedValue: T;

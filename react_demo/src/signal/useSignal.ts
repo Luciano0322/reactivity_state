@@ -136,7 +136,6 @@ export function useMySignalAsyncEffect(effect: () => Promise<void>, dependencies
       dirty: true,
     };
 
-    // 调度计算
     scheduleComputation(running);
 
     return () => {

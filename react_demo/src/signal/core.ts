@@ -55,13 +55,6 @@ function isObject(value: any): value is object {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-// export function createMySignal<T extends object>(
-//   initialValue: T
-// ): { [K in keyof T]: MySignal<T[K]> };
-// export function createMySignal<T>(
-//   initialValue: T
-// ): MySignal<T>;
-
 // 通用型信號創建函數，判斷是否為物件型別
 export function createMySignal<T>(initialValue: T): SignalType<T> {
   if(Array.isArray(initialValue)) {
@@ -78,10 +71,7 @@ export function createMySignal<T>(initialValue: T): SignalType<T> {
 export function createSignalObject<T extends object>(initialValue: T): SignalObject<T> {
   // const signals = {} as { [K in keyof T]: MySignal<T[K]> };
   const signals = {} as SignalObject<T>;
-  // 使用 Object.keys 來處理屬性
-  // for (const key of Object.keys(initialValue) as (keyof T)[]) {
-  //   signals[key] = createMySignal(initialValue[key]);
-  // }
+
   for (const key in initialValue) {
     if (Object.prototype.hasOwnProperty.call(initialValue, key)) {
       const typedKey = key as keyof T;
@@ -91,15 +81,6 @@ export function createSignalObject<T extends object>(initialValue: T): SignalObj
   }
 
   return signals;
-}
-
-// 調整以符合 react 的 batch update
-function scheduleUpdate(computation: Computation) {
-  if (batching) {
-    pendingComputations.add(computation);
-  } else {
-    computation.execute();
-  }
 }
 
 export function createPrimitiveSignal<T>(initialValue: T): MySignal<T> {

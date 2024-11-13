@@ -9,9 +9,6 @@ export interface Computation {
 export interface MySignal<T> {
   read: () => T;
   write: (value: T | ((prevValue: T) => T)) => void;
-  // 不需與React hook結合，可以直接移除
-  // subscribe: (computation: Computation) => void;
-  // unsubscribe: (computation: Computation) => void;
 }
 
 export type SignalType<T> = T extends any[]
