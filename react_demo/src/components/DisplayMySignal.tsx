@@ -7,7 +7,10 @@ const DisplayMySignal: FC = () => {
   const [countS, setCountS]= useState(0);
   const count = useMySignal(countSignal);
   const incrementS = (evt: MouseEvent<HTMLButtonElement>) => {
-    setCountS((pre) => pre +1);
+    setCountS((pre) => {
+      console.log('pre: ', pre + 1);
+      return pre + 1
+    });
     console.log(`from state count: ${countS}, DOM: ${evt.currentTarget.innerText}`)
   }
   const increment = (evt: MouseEvent<HTMLButtonElement>) => {
